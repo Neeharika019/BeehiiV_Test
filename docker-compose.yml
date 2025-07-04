@@ -25,11 +25,11 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/app
-      - /app/tmp
-      - /app/log
+      - ./tmp:/app/tmp
+      - ./log:/app/log
     command: >
       sh -c "
+        mkdir -p /app/tmp/pids /app/tmp/sockets /app/log &&
         bundle exec rake db:create db:migrate db:seed &&
         bundle exec puma -p 2000 -C ./config/puma.rb
       "

@@ -39,6 +39,9 @@ COPY . .
 # Precompile assets
 RUN cd client && yarn build
 
+# Create necessary directories
+RUN mkdir -p /app/tmp/pids /app/tmp/sockets /app/log
+
 # Create a non-root user
 RUN useradd -m -u 1000 app
 RUN chown -R app:app /app
