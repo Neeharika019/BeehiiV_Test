@@ -5,3 +5,22 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+# Create some sample subscribers
+subscribers_data = [
+  { name: "Rick Sanchez", email: "rickc137@citadel.com", status: "active" },
+  { name: "Morty Smith", email: "morty.smith@gmail.com", status: "inactive" },
+  { name: "Jerry Smith", email: "jerry.smith@aol.com", status: "active" },
+  { name: "Beth Smith", email: "beth.smith@gmail.com", status: "active" },
+  { name: "Summer Smith", email: "summer.smith@gmail.com", status: "active" },
+  { name: "Bird Person", email: "bird.person@birdworld.com", status: "active" }
+]
+
+subscribers_data.each do |subscriber_data|
+  Subscriber.find_or_create_by(email: subscriber_data[:email]) do |subscriber|
+    subscriber.name = subscriber_data[:name]
+    subscriber.status = subscriber_data[:status]
+  end
+end
+
+puts "Created #{Subscriber.count} subscribers"

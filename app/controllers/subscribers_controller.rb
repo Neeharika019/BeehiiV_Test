@@ -6,56 +6,57 @@ class SubscribersController < ApplicationController
   ##
   # GET /api/subscribers
   def index
-    subscribers = [
-      {
-        id: 1,
-        name: "Rick Sanchez",
-        email: "rickc137@citadel.com",
-        status: "active"
-      },
-      {
-        id: 2,
-        name: "Morty Smith",
-        email: "morty.smith@gmail.com",
-        status: "inactive"
-      },
-      {
-        id: 3,
-        name: "Jerry Smith",
-        email: "jerry.smith@aol.com",
-        status: "active"
-      },
-      {
-        id: 4,
-        name: "Beth Smith",
-        email: "beth.smith@gmail.com",
-        status: "active"
-      },
-      {
-        id: 5,
-        name: "Summer Smith",
-        email: "summer.smith@gmail.com",
-        status: "active"
-      },
-      {
-        id: 6,
-        name: "Bird Person",
-        email: "bird.person@birdworld.com",
-        status: "active"
-      }
-    ]
+    subscribers = Subscriber.order(created_at: :desc)
+                           .offset(offset)
+                           .limit(limit)
+    
+    total_records = Subscriber.count
 
-    total_records = subscribers.count
-    limited_subscribers = subscribers[offset..limit]
-
-    render json: {subscribers: limited_subscribers, pagination: pagination(total_records)}, formats: :json
+    render json: {
+      subscribers: subscribers.as_json(only: [:id, :name, :email, :status]),
+      pagination: pagination(total_records)
+    }, formats: :json
   end
 
   def create
-    render json: {message: "Subscriber created successfully"}, formats: :json, status: :created
+    subscriber = Subscriber.new(subscriber_params)
+    
+    if subscriber.save
+      render json: {
+        message: "Subscriber created successfully",
+        subscriber: subscriber.as_json(only: [:id, :name, :email, :status])
+      }, formats: :json, status: :created
+    else
+      render json: {
+        message: "Failed to create subscriber",
+        errors: subscriber.errors.full_messages
+      }, formats: :json, status: :unprocessable_entity
+    end
   end
 
   def update
-    render json: {message: "Subscriber updated successfully"}, formats: :json, status: :ok
+    subscriber = Subscriber.find(params[:id])
+    
+    if subscriber.update(subscriber_params)
+      render json: {
+        message: "Subscriber updated successfully",
+        subscriber: subscriber.as_json(only: [:id, :name, :email, :status])
+      }, formats: :json, status: :ok
+    else
+      render json: {
+        message: "Failed to update subscriber",
+        errors: subscriber.errors.full_messages
+      }, formats: :json, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: {
+      message: "Subscriber not found"
+    }, formats: :json, status: :not_found
+  end
+
+  private
+
+  def subscriber_params
+    params.permit(:name, :email, :status)
   end
 end

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Modal, { ModalBody, ModalFooter } from '../Modal'
 import PropTypes from 'prop-types';
+import Notification from '../Notification';
 
 // Components
 import Button, { SecondaryButton } from '../Button';
@@ -10,24 +11,39 @@ import { updateSubscriber } from "../../services/subscriber";
 
 const SubscriberStatusModal = (props) => {
   const { isOpen, onSuccess, onClose, subscriberId, status } = props;
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [notification, setNotification] = useState({ isVisible: false, message: '', type: 'info' })
+
+  const showNotification = (message, type = 'info') => {
+    setNotification({ isVisible: true, message, type })
+  }
+
+  const hideNotification = () => {
+    setNotification({ isVisible: false, message: '', type: 'info' })
+  }
 
   const onUpdate = () => {
+    const newStatus = status === 'active' ? 'inactive' : 'active'
     const payload = {
-      status: status === 'active' ? 'inactive' : 'active'
+      status: newStatus
     }
 
-    setIsDeleting(true)
+    setIsUpdating(true)
     updateSubscriber(subscriberId, payload)
-    .then(() => {
+    .then((response) => {
+      const actionText = newStatus === 'active' ? 'resubscribed' : 'unsubscribed'
+      showNotification(`Subscriber ${actionText} successfully!`, 'success')
       onSuccess()
+      onClose()
     })
-    .catch((payload) => {
-      const error = payload?.response?.data?.message || 'Something went wrong'
-      console.error(error)
+    .catch((error) => {
+      const errorMessage = error?.response?.data?.errors?.join(', ') || 
+                          error?.response?.data?.message || 
+                          'Something went wrong while updating the subscriber'
+      showNotification(errorMessage, 'error')
     })
     .finally(() => {
-      setIsDeleting(false)
+      setIsUpdating(false)
     })
   }
 
@@ -40,28 +56,36 @@ const SubscriberStatusModal = (props) => {
     "Unsubscribe" : "Resubscribe"
 
   return (
-    <Modal modalTitle={modalTitleText} showModal={isOpen} onCloseModal={onClose}>
-      <>
-        <ModalBody>
-          {messageBodyText}
-        </ModalBody>
-        <ModalFooter>
-          <SecondaryButton
-            className="mx-2"
-            onClick={onClose}
-          >
-            Cancel
-          </SecondaryButton>
-          <Button
-            type="primary"
-            loading={isDeleting}
-            onClick={onUpdate}
-          >
-            {buttonText}
-          </Button>
-        </ModalFooter>
-      </>
-    </Modal>
+    <>
+      <Notification
+        isVisible={notification.isVisible}
+        message={notification.message}
+        type={notification.type}
+        onClose={hideNotification}
+      />
+      <Modal modalTitle={modalTitleText} showModal={isOpen} onCloseModal={onClose}>
+        <>
+          <ModalBody>
+            {messageBodyText}
+          </ModalBody>
+          <ModalFooter>
+            <SecondaryButton
+              className="mx-2"
+              onClick={onClose}
+            >
+              Cancel
+            </SecondaryButton>
+            <Button
+              type="primary"
+              loading={isUpdating}
+              onClick={onUpdate}
+            >
+              {buttonText}
+            </Button>
+          </ModalFooter>
+        </>
+      </Modal>
+    </>
   );
 };
 
