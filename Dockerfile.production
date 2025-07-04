@@ -21,6 +21,9 @@ WORKDIR /app
 COPY Gemfile Gemfile.lock ./
 COPY package.json yarn.lock ./
 
+# Copy client directory for yarn install
+COPY client/ ./client/
+
 # Install dependencies
 RUN bundle install --without development test
 RUN yarn install --frozen-lockfile

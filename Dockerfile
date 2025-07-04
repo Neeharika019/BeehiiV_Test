@@ -27,6 +27,9 @@ RUN bundle install
 # Copy package.json and yarn.lock
 COPY package.json yarn.lock ./
 
+# Copy client directory for yarn install
+COPY client/ ./client/
+
 # Install Node.js packages
 RUN yarn install
 
