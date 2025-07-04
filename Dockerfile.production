@@ -5,9 +5,11 @@ FROM ruby:3.1.2-alpine AS builder
 RUN apk add --no-cache \
     build-base \
     postgresql-dev \
-    nodejs \
-    npm \
+    curl \
     git
+
+# Install Node.js 16.x
+RUN curl -fsSL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1
 
 # Install Yarn
 RUN npm install -g yarn
@@ -35,8 +37,11 @@ FROM ruby:3.1.2-alpine
 # Install runtime dependencies
 RUN apk add --no-cache \
     postgresql-client \
-    nodejs \
+    curl \
     tzdata
+
+# Install Node.js 16.x for runtime
+RUN curl -fsSL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1
 
 # Create app user
 RUN addgroup -g 1000 -S app && \
