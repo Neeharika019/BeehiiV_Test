@@ -71,7 +71,7 @@ function App() {
   }
 
   const onSuccessAddSubscriber = () => {
-    setShowAddModal(false)
+    refreshSubscribers()
   }
 
   const onUpdateStatusSelectected = (subscriberId, status) => {
@@ -85,8 +85,7 @@ function App() {
   }
 
   const onSuccessUpdateStatusSubscriber = () => {
-    setFocusedSubscriberId('')
-    setFocusedSubscriberStatus('')
+    refreshSubscribers()
   }
 
   return (
@@ -106,7 +105,7 @@ function App() {
         />
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold flex items-center">
-            {pagination?.total} Subscribers {isLoading && <LoadingSpinner className="ml-4" />}
+            {pagination?.total || 0} Subscribers {isLoading && <LoadingSpinner className="ml-4" />}
           </h1>
           <SecondaryButton onClick={onOpenAddSubscriber}>
             Add Subscriber

@@ -1,0 +1,74 @@
+# Multi-stage build for production
+FROM ruby:3.1.2-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    build-base \
+    postgresql-dev \
+    curl \
+    git
+
+# Install Node.js 16.x
+RUN curl -fsSL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1
+
+# Install Yarn
+RUN npm install -g yarn
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY Gemfile Gemfile.lock ./
+COPY package.json yarn.lock ./
+
+# Copy client directory for yarn install
+COPY client/ ./client/
+
+# Install dependencies
+RUN bundle install --without development test
+RUN yarn install --frozen-lockfile
+
+# Copy application code
+COPY . .
+
+# Build frontend assets
+RUN cd client && yarn build
+
+# Production stage
+FROM ruby:3.1.2-alpine
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    postgresql-client \
+    curl \
+    tzdata
+
+# Install Node.js 16.x for runtime
+RUN curl -fsSL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1
+
+# Create app user
+RUN addgroup -g 1000 -S app && \
+    adduser -u 1000 -S app -G app
+
+# Set working directory
+WORKDIR /app
+
+# Copy built assets from builder stage
+COPY --from=builder /app /app
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+# Set ownership
+RUN chown -R app:app /app
+
+# Switch to app user
+USER app
+
+# Expose port
+EXPOSE 2000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:2000/api/subscribers || exit 1
+
+# Start the application
+CMD ["bundle", "exec", "puma", "-p", "2000", "-C", "./config/puma.rb"] 

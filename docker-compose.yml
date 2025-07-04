@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: newsletter_app_production
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  web:
+    build: .
+    ports:
+      - "2000:2000"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/newsletter_app_production
+      RAILS_ENV: production
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD: secure_password_123
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-your_secret_key_base_here}
+    depends_on:
+      - db
+    volumes:
+      - ./tmp:/app/tmp
+      - ./log:/app/log
+    command: >
+      sh -c "
+        mkdir -p /app/tmp/pids /app/tmp/sockets /app/log &&
+        bundle exec rake db:create db:migrate db:seed &&
+        bundle exec puma -p 2000 -C ./config/puma.rb
+      "
+
+volumes:
+  postgres_data: 
