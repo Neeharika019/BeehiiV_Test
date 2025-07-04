@@ -4,14 +4,14 @@ A full-stack newsletter application built with Rails and React for managing subs
 
 ## Features
 
-- ✅ **Subscriber Management**: Add, view, and update subscriber status
-- ✅ **Email Validation**: Unique, case-insensitive email addresses with proper validation
-- ✅ **Status Management**: Active/Inactive subscriber status
-- ✅ **Server-side Pagination**: Efficient pagination for large subscriber lists
-- ✅ **Error Handling**: Comprehensive error notifications and validation
-- ✅ **Environment Variables**: Configurable authentication credentials
-- ✅ **Database Persistence**: PostgreSQL database with proper migrations
-- ✅ **Comprehensive Testing**: Model and controller tests with RSpec
+- Subscriber Managemen: Add, view, and update subscriber status
+- Email Validation: Unique, case-insensitive email addresses with proper validation
+- Status Management: Active/Inactive subscriber status
+- Server-side Pagination: Efficient pagination for large subscriber lists
+- Error Handling: Comprehensive error notifications and validation
+- Environment Variables: Configurable authentication credentials
+- Database Persistence: PostgreSQL database with proper migrations
+- Comprehensive Testing: Model and controller tests with RSpec
 
 ## The Stack
 
