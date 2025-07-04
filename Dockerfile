@@ -50,5 +50,5 @@ USER app
 # Expose port (Railway will set PORT environment variable)
 EXPOSE $PORT
 
-# Start the application
-CMD ["bundle", "exec", "puma", "-p", "${PORT:-2000}", "-C", "./config/puma.rb"] 
+# Start the application with database setup
+CMD ["sh", "-c", "bundle exec rake db:create db:migrate db:seed && bundle exec puma -p ${PORT:-2000} -C ./config/puma.rb"] 
