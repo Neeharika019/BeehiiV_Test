@@ -47,8 +47,8 @@ RUN useradd -m -u 1000 app
 RUN chown -R app:app /app
 USER app
 
-# Expose port
-EXPOSE 2000
+# Expose port (Railway will set PORT environment variable)
+EXPOSE $PORT
 
 # Start the application
-CMD ["bundle", "exec", "puma", "-p", "2000", "-C", "./config/puma.rb"] 
+CMD ["bundle", "exec", "puma", "-p", "${PORT:-2000}", "-C", "./config/puma.rb"] 
