@@ -16,3 +16,4 @@ class Subscriber < ApplicationRecord
     self.status = 'active' if status.blank?
   end
 end 
+
